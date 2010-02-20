@@ -16,3 +16,20 @@ __DATA__
 Goro Fuji (gfx)
 gfuji(at)cpan.org
 MouseX::NativeTraits
+
+Stevan
+clearers
+cpan
+extention
+gfx
+Num
+Str
+versa
+uniq
+indices
+dec
+kv
+isa
+arity
+metaclass
+
