@@ -434,7 +434,7 @@ __END__
 
 =head1 NAME
 
-MouseX::NativeTraits::MethodProvider::Array - Provides methods for ArrayRef
+MouseX::NativeTraits::MethodProvider::ArrayRef - Provides methods for ArrayRef
 
 =head1 DESCRIPTION
 
