@@ -1,0 +1,98 @@
+package MouseX::NativeTraits::MethodProvider::Num;
+use Mouse;
+
+our $VERSION = '0.001';
+
+extends qw(MouseX::NativeTraits::MethodProvider);
+
+sub generate_add {
+    my($self) = @_;
+    my $reader     = $self->reader;
+    my $writer     = $self->writer;
+    my $constraint = $self->attr->type_constraint;
+
+    return sub {
+        my($instance, $value) = @_;
+        $constraint->assert_valid($value);
+        $writer->( $instance, $reader->( $instance ) + $value );
+    };
+}
+
+sub generate_sub {
+    my($self) = @_;
+    my $reader     = $self->reader;
+    my $writer     = $self->writer;
+    my $constraint = $self->attr->type_constraint;
+
+    return sub {
+        my($instance, $value) = @_;
+        $constraint->assert_valid($value);
+        $writer->( $instance, $reader->( $instance ) - $value );
+    };
+}
+
+sub generate_mul {
+    my($self) = @_;
+    my $reader     = $self->reader;
+    my $writer     = $self->writer;
+    my $constraint = $self->attr->type_constraint;
+
+    return sub {
+        my($instance, $value) = @_;
+        $constraint->assert_valid($value);
+        $writer->( $instance, $reader->( $instance ) * $value );
+    };
+}
+
+sub generate_div {
+    my($self) = @_;
+    my $reader     = $self->reader;
+    my $writer     = $self->writer;
+    my $constraint = $self->attr->type_constraint;
+
+    return sub {
+        my($instance, $value) = @_;
+        $constraint->assert_valid($value);
+        $writer->( $instance, $reader->( $instance ) / $value );
+    };
+}
+
+sub generate_abs {
+    my($self) = @_;
+    my $reader     = $self->reader;
+    my $writer     = $self->writer;
+
+    return sub {
+        my($instance) = @_;
+        $writer->( $instance, abs( $reader->( $instance ) ) );
+    };
+}
+
+no Mouse;
+__PACKAGE__->meta->make_immutable(strict_constructor => 1);
+
+__END__
+
+=head1 NAME
+
+MouseX::NativeTraits::MethodProvider::Num - Provides methods for Num
+
+=head1 DESCRIPTION
+
+This class provides method generators for the C<Number> trait.
+See L<Mouse::Meta::Attribute::Custom::Trait::Number> for details.
+
+=head1 METHOD GENERATORS
+
+=over 4
+
+=item generate_
+
+=back
+
+=head1 SEE ALSO
+
+L<MouseX::NativeTraits>.
+
+=cut
+
