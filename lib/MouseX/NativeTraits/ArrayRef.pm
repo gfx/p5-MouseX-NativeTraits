@@ -137,9 +137,9 @@ to this method.
    my $found = $stuff->reduce_options( sub { $_[0] . $_[1] } );
    print "$found\n"; # prints "foobarbazboo"
 
-=item B<sort( sub { ... } )>
+=item B<sort( \&compare )>
 
-Returns a the array in sorted order.
+Returns the array in sorted order.
 
 You can provide an optional subroutine reference to sort with (as you can with
 Perl's core C<sort> function). However, instead of using C<$a> and C<$b>, you
@@ -152,13 +152,32 @@ will need to use C<$_[0]> and C<$_[1]> instead.
    my @sorted_options = $stuff->sort_options( sub { lc $_[1] cmp lc $_[0] } );
    print "@sorted_options\n"; # prints "foo boo baz bar"
 
-=item B<sort_in_place>
+=item B<sort_in_place( \&compare )>
 
 Sorts the array I<in place>, modifying the value of the attribute.
 
 You can provide an optional subroutine reference to sort with (as you can with
 Perl's core C<sort> function). However, instead of using C<$a> and C<$b>, you
 will need to use C<$_[0]> and C<$_[1]> instead.
+
+=item B<sort_by( \&by, \&compare )>
+
+Returns the array in sorted order, applying I<\&by> function to each item.
+
+This is equivalent to C<< sort(sub{ by($_[0]) cmp by($_[1]) }) >>, but
+implemented effectively.
+
+Currently (as of Moose 0.98) this is a Mouse specific method.
+
+=item B<sort_in_place_by( \&by, \&compare )>
+
+Sorts the array, applying I<\&by> function to each item, modifying the value
+of the attribute.
+
+This is equivalent to C<< sort_in_place(sub{ by($_[0]) cmp by($_[1]) }) >>, but
+implemented effectively.
+
+Currently (as of Moose 0.98) this is a Mouse specific method.
 
 =item B<shuffle>
 
@@ -205,10 +224,14 @@ passed two arguments, it sets the value of the specified index.
 This method calls the given subroutine with each element of the array,
 like Perl's core C<foreach> statement.
 
+Currently (as of Moose 0.98) this is a Mouse specific method.
+
 =item B<for_each_pair( sub{ ... } )>
 
 This method calls the given subroutine with each two element of the array,
 as if the array is a list of pairs.
+
+Currently (as of Moose 0.98) this is a Mouse specific method.
 
 =back
 
