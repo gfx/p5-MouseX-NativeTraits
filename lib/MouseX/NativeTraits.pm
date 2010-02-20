@@ -5,20 +5,6 @@ use Mouse::Role;
 
 our $VERSION = '0.001';
 
-#XXX: remove this
-{
-    package Mouse::Meta::TypeConstraint;
-    sub __is_parameterized{ exists $_[0]->{parameter} }
-    sub type_parameter    {        $_[0]->{parameter} }
-
-    sub assert_valid {
-        my($self, $value) = @_;
-        return 1 if $self->check($value);
-
-        Carp::confess($self->get_message($value));
-    }
-}
-
 requires qw(method_provider_class helper_type);
 
 has default         => (
