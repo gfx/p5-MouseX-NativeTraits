@@ -65,4 +65,48 @@ sub get_generators {
 
 no Mouse;
 __PACKAGE__->meta->make_immutable(strict_constructor => 1);
+
 __END__
+
+
+=head1 NAME
+
+MouseX::NativeTraits::MethodProvider - The common base class for method providers
+
+=head1 DESCRIPTION
+
+This class is the common base class for method providers.
+
+=head1 ATTRIBUTES
+
+=over 4
+
+=item attr
+
+=item reader
+
+Shortcut for C<< $provider->attr->get_read_method_ref >>.
+
+=item writer
+
+Shortcut for C<< $provider->attr->get_write_method_ref >>.
+
+=back
+
+=head1 METHODS
+
+=over 4
+
+=item has_generator
+
+=item generate
+
+=item get_generators
+
+=back
+
+=head1 SEE ALSO
+
+L<MouseX::NativeTraits>
+
+=cut

@@ -465,7 +465,7 @@ See L<Mouse::Meta::Attribute::Custom::Trait::Array> for details.
 
 =item generate_sort_in_place_by
 
-=item generate_shuffule
+=item generate_shuffle
 
 =item generate_grep
 
@@ -483,15 +483,27 @@ See L<Mouse::Meta::Attribute::Custom::Trait::Array> for details.
 
 =item generate_shift
 
-=item generate_fetch (or generate_get)
+=item generate_fetch
 
-=item generate_store (or generate_set)
+=item generate_get
+
+The same as C<generate_fetch>
+
+=item generate_store
+
+=item generate_set
+
+The same as C<generate_store>
 
 =item generate_accessor
 
 =item generate_clear
 
-=item generate_remove (or generate_delete)
+=item generate_remove
+
+=item generate_delete
+
+The same as C<generate_remove>. Note that it is different from C<CORE::delete>.
 
 =item generate_insert
 

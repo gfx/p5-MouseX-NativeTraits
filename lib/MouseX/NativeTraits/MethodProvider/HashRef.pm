@@ -281,11 +281,19 @@ See L<Mouse::Meta::Attribute::Custom::Trait::Hash> for details.
 
 =item generate_exists
 
-=item generate_define
+=item generate_defined
 
-=item generate_fetch (or generate_get)
+=item generate_fetch
 
-=item generate_store (or generate_set)
+=item generate_get
+
+The same as C<generate_fetch>.
+
+=item generate_store
+
+=item generate_set
+
+The same as C<generate_store>.
 
 =item generate_accessor
 

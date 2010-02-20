@@ -86,7 +86,15 @@ See L<Mouse::Meta::Attribute::Custom::Trait::Number> for details.
 
 =over 4
 
-=item generate_
+=item generate_add
+
+=item generate_sub
+
+=item generate_mul
+
+=item generate_div
+
+=item generate_abs
 
 =back
 

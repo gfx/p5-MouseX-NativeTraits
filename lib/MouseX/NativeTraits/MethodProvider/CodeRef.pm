@@ -5,7 +5,7 @@ our $VERSION = '0.001';
 
 extends qw(MouseX::NativeTraits::MethodProvider);
 
-sub genera_execute {
+sub generate_execute {
     my($self)  = @_;
     my $reader = $self->reader;
 

@@ -176,7 +176,27 @@ See L<Mouse::Meta::Attribute::Custom::Trait::String> for details.
 
 =over 4
 
-=item generate_
+=item generate_append
+
+=item generate_prepend
+
+=item generate_replace
+
+=item generate_replace_globally
+
+=item generate_match
+
+=item generate_chop
+
+=item generate_chomp
+
+=item generate_inc
+
+=item generate_clear
+
+=item generate_length
+
+=item generate_substr
 
 =back
 
