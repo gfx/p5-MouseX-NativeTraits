@@ -1,8 +1,6 @@
 package MouseX::NativeTraits::MethodProvider;
 use Mouse;
 
-our $VERSION = '0.001';
-
 has attr => (
     is       => 'ro',
     isa      => 'Object',

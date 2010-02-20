@@ -1,8 +1,6 @@
 package MouseX::NativeTraits::MethodProvider::CodeRef;
 use Mouse;
 
-our $VERSION = '0.001';
-
 extends qw(MouseX::NativeTraits::MethodProvider);
 
 sub generate_execute {

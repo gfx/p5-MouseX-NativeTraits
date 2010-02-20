@@ -1,8 +1,6 @@
 package MouseX::NativeTraits::Num;
 use Mouse::Role;
 
-our $VERSION = '0.001';
-
 with 'MouseX::NativeTraits';
 
 sub method_provider_class {

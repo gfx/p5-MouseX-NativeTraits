@@ -1,8 +1,6 @@
 package MouseX::NativeTraits::MethodProvider::ArrayRef;
 use Mouse;
 
-our $VERSION = '0.001';
-
 use List::Util;
 
 extends qw(MouseX::NativeTraits::MethodProvider);
