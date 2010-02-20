@@ -306,7 +306,7 @@ sub generate_accessor {
             }
             elsif ( @_ == 2 ) {    # writer
                 $container_type_constraint->assert_valid( $_[1] );
-                $reader->($self)->[ $_[0] ] = $_[1];
+                $reader->($instance)->[ $_[0] ] = $_[1];
             }
             else {
                 confess "One or two arguments expected, not " . @_;
@@ -419,7 +419,7 @@ sub generate_for_each_pair {
     return sub {
         my ( $instance, $block ) = @_;
 
-        my $array_ref = $reader->instance($instance);
+        my $array_ref = $reader->($instance);
         for(my $i = 0; $i < @{$array_ref}; $i += 2){
             $block->($array_ref->[$i], $array_ref->[$i + 1]);
         }

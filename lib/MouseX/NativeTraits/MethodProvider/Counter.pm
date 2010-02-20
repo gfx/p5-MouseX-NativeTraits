@@ -45,7 +45,7 @@ sub generate_inc {
 
     my $reader     = $self->reader;
     my $writer     = $self->writer;
-    my $constraint = $self->type_constraint;
+    my $constraint = $self->attr->type_constraint;
 
     return sub {
         my($instance, $value) = @_;
@@ -64,7 +64,7 @@ sub generate_dec {
 
     my $reader     = $self->reader;
     my $writer     = $self->writer;
-    my $constraint = $self->type_constraint;
+    my $constraint = $self->attr->type_constraint;
 
     return sub {
         my($instance, $value) = @_;

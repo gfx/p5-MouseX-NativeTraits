@@ -8,7 +8,7 @@ sub method_provider_class {
 }
 
 sub helper_type {
-    return 'Num';
+    return 'Int';
 }
 
 sub _default_default { 0 }

@@ -7,10 +7,10 @@ our $VERSION = '0.001';
 
 requires qw(method_provider_class helper_type);
 
-has default         => (
-    is       => 'bare', # don't create new methods
-    required => 1,
-);
+#has default         => (
+#    is       => 'bare', # don't create new methods
+#    required => 1,
+#);
 has type_constraint => (
     is       => 'bare', # don't create new methods
     required => 1,

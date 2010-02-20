@@ -8,8 +8,18 @@ sub generate_execute {
     my $reader = $self->reader;
 
     return sub {
-        my ($self, @args) = @_;
-        $reader->($self)->(@args);
+        my ($instance, @args) = @_;
+        $reader->($instance)->(@args);
+    };
+}
+
+sub generate_execute_method {
+    my($self)  = @_;
+    my $reader = $self->reader;
+
+    return sub {
+        my ($instance, @args) = @_;
+        $reader->($instance)->($instance, @args);
     };
 }
 
@@ -32,6 +42,8 @@ See L<Mouse::Meta::Attribute::Custom::Trait::Code> for details.
 =over 4
 
 =item generate_execute
+
+=item generate_execute_method
 
 =back
 

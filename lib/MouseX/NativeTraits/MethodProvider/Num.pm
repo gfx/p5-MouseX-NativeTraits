@@ -55,6 +55,20 @@ sub generate_div {
     };
 }
 
+sub generate_mod {
+    my($self) = @_;
+    my $reader     = $self->reader;
+    my $writer     = $self->writer;
+    my $constraint = $self->attr->type_constraint;
+
+    return sub {
+        my($instance, $value) = @_;
+        $constraint->assert_valid($value);
+        $writer->( $instance, $reader->( $instance ) % $value );
+    };
+}
+
+
 sub generate_abs {
     my($self) = @_;
     my $reader     = $self->reader;
@@ -91,6 +105,8 @@ See L<Mouse::Meta::Attribute::Custom::Trait::Number> for details.
 =item generate_mul
 
 =item generate_div
+
+=item generate_mod
 
 =item generate_abs
 

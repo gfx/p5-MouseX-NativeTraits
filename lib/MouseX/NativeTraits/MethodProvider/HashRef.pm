@@ -58,7 +58,7 @@ sub generate_is_empty {
     my $reader = $self->reader;
 
     return sub {
-        return scalar(keys %{ $reader->( $_[0] ) }) != 0;
+        return scalar(keys %{ $reader->( $_[0] ) }) == 0;
     };
 }
 
@@ -149,7 +149,7 @@ sub generate_accessor {
                 return $reader->($self)->{ $_[0] };
             }
             elsif ( @_ == 2 ) {    # writer
-                $constraint->assert_valid( $_[1] );
+                $container_type_constraint->assert_valid( $_[1] );
                 $reader->($self)->{ $_[0] } = $_[1];
             }
             else {
@@ -177,9 +177,7 @@ sub generate_accessor {
 sub generate_clear {
     my($self) = @_;
 
-    my $reader     = $self->reader;
-    my $writer     = $self->writer;
-    my $constraint = $self->type_constraint;
+    my $reader  = $self->reader;
 
     return sub { %{ $reader->( $_[0] ) } = () };
 }
@@ -187,7 +185,7 @@ sub generate_clear {
 sub generate_delete {
     my($self) = @_;
 
-    my $reader     = $self->reader;
+    my $reader  = $self->reader;
 
     return sub {
         my $instance = shift;
