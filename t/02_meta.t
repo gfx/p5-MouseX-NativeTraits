@@ -14,12 +14,12 @@ lives_ok {
     );
 } '"is" parameter can be omitted';
 
-throws_ok {
-    has bar1 => (
-        traits  => [qw(Array)],
-        handles => { mypush1 => 'push' },
-    );
-} qr/default .* is \s+ required/xms;
+#throws_ok {
+#    has bar1 => (
+#        traits  => [qw(Array)],
+#        handles => { mypush1 => 'push' },
+#    );
+#} qr/default .* is \s+ required/xms;
 
 throws_ok {
     has bar2 => (

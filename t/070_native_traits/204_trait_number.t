@@ -13,10 +13,12 @@ use Test::Mouse;
     has 'integer' => (
         traits  => ['Number'],
         is      => 'ro',
-        isa     => 'Int',
+        isa     => 'Num',
         default => 5,
+
+        writer => 'set',
         handles => {
-            set         => 'set',
+#            set         => 'set',
             add         => 'add',
             sub         => 'sub',
             mul         => 'mul',
@@ -90,12 +92,13 @@ is $real->integer, 12, 'dec 13';
 ## test the meta
 
 my $attr = $real->meta->get_attribute('integer');
-does_ok( $attr, 'Mouse::Meta::Attribute::Native::Trait::Number' );
+#XXX: Mouse role name is different
+#does_ok( $attr, 'Mouse::Meta::Attribute::Native::Trait::Number' );
 
 is_deeply(
     $attr->handles,
     {
-        set         => 'set',
+#        set         => 'set',
         add         => 'add',
         sub         => 'sub',
         mul         => 'mul',

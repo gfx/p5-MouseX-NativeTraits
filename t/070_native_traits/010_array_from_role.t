@@ -19,6 +19,7 @@ use Test::Exception;
         traits => ['Array'],
         is     => 'ro',
         isa    => 'ArrayRef[Foo]',
+        default => sub{ [] },
     );
 
     package Bulkie::Role;
@@ -28,6 +29,7 @@ use Test::Exception;
         traits  => ['Array'],
         is      => 'ro',
         isa     => 'ArrayRef',
+        default => sub{ [] },
         handles => {
             get_stuff => 'get',
         }
