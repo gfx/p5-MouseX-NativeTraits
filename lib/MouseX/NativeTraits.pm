@@ -3,7 +3,7 @@ package MouseX::NativeTraits;
 use 5.006_002;
 use Mouse::Role;
 
-our $VERSION = '0.001';
+our $VERSION = '0.001_01';
 
 requires qw(method_provider_class helper_type);
 
@@ -86,7 +86,7 @@ MouseX::NativeTraits - Extend your attribute interfaces for Mouse
 
 =head1 VERSION
 
-This document describes MouseX::NativeTraits version 0.001.
+This document describes MouseX::NativeTraits version 0.001_01.
 
 =head1 SYNOPSIS
 

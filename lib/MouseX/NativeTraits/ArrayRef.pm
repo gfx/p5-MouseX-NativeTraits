@@ -44,9 +44,6 @@ MouseX::NativeTraits::ArrayRef - Helper trait for ArrayRef attributes
        },
     );
 
-    no Moose;
-    1;
-
 =head1 DESCRIPTION
 
 This module provides an Array attribute which provides a number of

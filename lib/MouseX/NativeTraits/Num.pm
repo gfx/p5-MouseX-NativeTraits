@@ -24,7 +24,7 @@ MouseX::NativeTraits::Num - Helper trait for Num attributes
 =head1 SYNOPSIS
 
   package Real;
-  use Moose;
+  use Mouse;
 
   has 'integer' => (
       traits    => ['Number'],

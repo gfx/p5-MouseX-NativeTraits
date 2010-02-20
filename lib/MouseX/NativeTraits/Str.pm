@@ -24,7 +24,7 @@ MouseX::NativeTraits::Str - Helper trait for Str attributes
 =head1 SYNOPSIS
 
   package MyHomePage;
-  use Moose;
+  use Mouse;
 
   has 'text' => (
       traits    => ['String'],
