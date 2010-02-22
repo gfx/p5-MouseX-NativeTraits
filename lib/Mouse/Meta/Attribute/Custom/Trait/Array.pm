@@ -2,7 +2,7 @@ package Mouse::Meta::Attribute::Custom::Trait::Array;
 
 use strict;
 
-our $VERSION = '0.001_01';
+our $VERSION = '0.001_02';
 
 sub register_implementation { 'MouseX::NativeTraits::ArrayRef' }
 
