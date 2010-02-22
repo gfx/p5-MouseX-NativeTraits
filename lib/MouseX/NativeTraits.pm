@@ -71,8 +71,8 @@ around _canonicalize_handles => sub {
 };
 
 around _make_delegation_method => sub {
-    my( $next, $self, $handle_name, $method_to_call, @curried_args ) = @_;
-    return $self->method_provider->generate($handle_name, $method_to_call, @curried_args);
+    my( $next, $self, $handle_name, $method_to_call) = @_;
+    return $self->method_provider->generate($handle_name, $method_to_call);
 };
 
 no Mouse::Role;
