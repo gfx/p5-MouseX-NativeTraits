@@ -2,8 +2,6 @@ package Mouse::Meta::Attribute::Custom::Trait::Counter;
 
 use strict;
 
-our $VERSION = '0.001_02';
-
 sub register_implementation { 'MouseX::NativeTraits::Counter' }
 
 1;
