@@ -109,6 +109,12 @@ element in the array until one matches or all elements have been checked.
    my $found = $stuff->find_option( sub { /^b/ } );
    print "$found\n"; # prints "bar"
 
+=item B<any( sub { ... } )>
+
+This method returns true if any item in the array meets the criterion given
+through the subroutine, otherwise returns false. It sets $_ for each item
+in the array.
+
 =item B<grep( sub { ... } )>
 
 This method returns every element matching a given criteria, just like Perl's
@@ -126,6 +132,12 @@ implements the transformation.
 
    my @mod_options = $stuff->map_options( sub { $_ . "-tag" } );
    print "@mod_options\n"; # prints "foo-tag bar-tag baz-tag boo-tag"
+
+=item B<apply( sub { ... } )>
+
+This method also transform evely element in the array and returns a new array,
+just like L<List::MoreUtils>'s C<apply> function.his is similar to C<map>,
+but does not modifiy the element of the array.
 
 =item B<reduce( sub { ... } )>
 
