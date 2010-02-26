@@ -30,6 +30,33 @@ sub generate_first {
     };
 }
 
+sub generate_any {
+    my($self) = @_;
+    my $reader = $self->reader;
+    return sub {
+        my ( $instance, $predicate ) = @_;
+        foreach (@{ $reader->($instance) }){
+            if($predicate->($_)){
+                return 1;
+            }
+        }
+        return 0;
+    };
+}
+
+sub generate_apply {
+    my($self) = @_;
+    my $reader = $self->reader;
+    return sub {
+        my ( $instance, $block ) = @_;
+        my @values = @{ $reader->($instance) };
+        foreach (@values){
+            $block->();
+        }
+        return @values;
+    };
+}
+
 sub generate_map {
     my($self) = @_;
     my $reader = $self->reader;
@@ -450,6 +477,10 @@ See L<Mouse::Meta::Attribute::Custom::Trait::Array> for details.
 =item generate_is_empty
 
 =item generate_first
+
+=item generate_any
+
+=item generate_apply
 
 =item generate_map
 
