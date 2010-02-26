@@ -15,6 +15,10 @@ foreach my $type(qw(ArrayRef HashRef CodeRef Str Num Bool Counter)){
 
 
 diag "Testing MouseX::NativeTraits/$MouseX::NativeTraits::VERSION";
+diag "Dependencies:";
+
+require Mouse;
+diag "    Mouse/$Mouse::VERSION";
 
 
 done_testing;
