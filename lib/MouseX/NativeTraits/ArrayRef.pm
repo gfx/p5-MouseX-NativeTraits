@@ -135,9 +135,9 @@ implements the transformation.
 
 =item B<apply( sub { ... } )>
 
-This method also transform evely element in the array and returns a new array,
+This method also transform every element in the array and returns a new array,
 just like L<List::MoreUtils>'s C<apply> function.his is similar to C<map>,
-but does not modifiy the element of the array.
+but does not modify the element of the array.
 
 =item B<reduce( sub { ... } )>
 
