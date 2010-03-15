@@ -24,7 +24,7 @@ sub generate_execute_method {
 }
 
 no Mouse;
-__PACKAGE__->meta->make_immutable(strict_constructor => 1);
+__PACKAGE__->meta->make_immutable();
 
 __END__
 
