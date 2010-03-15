@@ -4,7 +4,7 @@ use inc::Module::Install;
 
 all_from 'lib/MouseX/NativeTraits.pm';
 
-requires 'Mouse', 0.50_02;
+requires 'Mouse', 0.51;
 
 test_requires 'Test::More'      => 0.88; # done_testing()
 test_requires 'Test::Exception' => 0.29;
