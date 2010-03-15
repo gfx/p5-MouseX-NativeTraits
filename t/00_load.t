@@ -3,6 +3,8 @@
 use strict;
 use Test::More;
 
+require_ok 'Mouse::Meta::Attribute::Native';
+
 require_ok 'MouseX::NativeTraits';
 require_ok 'MouseX::NativeTraits::MethodProvider';
 
@@ -20,5 +22,6 @@ diag "Dependencies:";
 require Mouse;
 diag "    Mouse/$Mouse::VERSION";
 
+ok( Mouse::Meta::Attribute::Native->VERSION );
 
 done_testing;
