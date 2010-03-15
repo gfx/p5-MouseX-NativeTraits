@@ -1,10 +1,13 @@
 Revision history for Perl extension MouseX::NativeTraits
 
+0.002 Mon Mar 15 15:56:36 2010
+    - First non-dev release
+
 0.001_02 Mon Feb 22 17:42:50 2010
     - Improve docs
 
 0.001_01 Sat Feb 20 15:49:59 2010
-    - first dev-release
+    - first dev release
 
 0.001 Fri Feb 19 10:45:19 2010
     - original version; created by Module::Setup
