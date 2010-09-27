@@ -1,5 +1,9 @@
 Revision history for Perl extension MouseX::NativeTraits
 
+1.00 Mon Sep 27 15:01:21 2010
+    - No functional changes
+    - Follow Mouse 0.74, which is more compatible with Moose
+
 0.002 Mon Mar 15 15:56:36 2010
     - First non-dev release
 
