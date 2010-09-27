@@ -1,5 +1,4 @@
 package MouseX::NativeTraits;
-
 use 5.006_002;
 use Mouse::Role;
 
@@ -76,7 +75,6 @@ around _make_delegation_method => sub {
 };
 
 no Mouse::Role;
-
 1;
 __END__
 
