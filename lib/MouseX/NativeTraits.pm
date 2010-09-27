@@ -50,8 +50,8 @@ before _process_options => sub {
 };
 
 around _canonicalize_handles => sub {
-    my($next, $self, $handles_ref) = @_;
-
+    my($next, $self) = @_;
+    my $handles_ref = $self->handles;
     if( ref($handles_ref) ne 'HASH' ) {
         $self->throw_error(
             "The 'handles' option must be a HASH reference, not $handles_ref");
