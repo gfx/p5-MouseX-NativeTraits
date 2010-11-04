@@ -61,6 +61,38 @@ sub get_generators {
     return grep{ s/\A generate_ //xms } $self->meta->get_method_list;
 }
 
+sub argument_error {
+    my($self, $name, $min, $max, $nargs) = @_;
+
+    if(not defined $max) {
+        $max = 9 ** 9 ** 9; # inifinity :p
+    }
+
+    # fix numbers for $self
+    $min--;
+    $max--;
+    $nargs--;
+
+    if($min <= $nargs and $nargs <= $max) {
+        Carp::croak("Oops ($name): nags=$nargs, min=$min, max=$max");
+    }
+
+    my $message = 'Cannot call %s %s argument%s';
+ 
+    if($min == 0 and $max == 0 && $nargs > 0) {
+        $self->meta->throw_error(
+            sprintf $message,
+                $name, 'with any', 's' );
+    }
+ 
+    $self->meta->throw_error(
+        sprintf 'Cannot call %s %s %d argument%s',
+            $name, ($nargs < $min
+                ? ('without at least', $min)
+                : ('with more than',   $max) ),
+            $nargs == 1 ? '' : 's' );
+}
+
 no Mouse;
 __PACKAGE__->meta->make_immutable(strict_constructor => 1);
 

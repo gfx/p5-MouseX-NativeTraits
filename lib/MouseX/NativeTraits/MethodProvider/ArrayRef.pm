@@ -1,7 +1,8 @@
 package MouseX::NativeTraits::MethodProvider::ArrayRef;
 use Mouse;
+use Mouse::Util::TypeConstraints ();
 
-use List::Util;
+use List::Util ();
 
 extends qw(MouseX::NativeTraits::MethodProvider);
 
@@ -9,6 +10,9 @@ sub generate_count {
     my($self) = @_;
     my $reader = $self->reader;
     return sub {
+        if(@_ != 1) {
+            $self->argument_error('count', 1, 1, scalar @_);
+        }
         return scalar @{ $reader->( $_[0] ) };
     };
 }
@@ -17,6 +21,9 @@ sub generate_is_empty {
     my($self) = @_;
     my $reader = $self->reader;
     return sub {
+        if(@_ != 1) {
+            $self->argument_error('is_empty', 1, 1, scalar @_);
+        }
         return scalar(@{ $reader->( $_[0] ) }) == 0;
     };
 }
@@ -25,8 +32,17 @@ sub generate_first {
     my($self) = @_;
     my $reader = $self->reader;
     return sub {
-        my ( $instance, $predicate ) = @_;
-        return List::Util::first(\&{$predicate}, @{ $reader->($instance) });
+        my ( $instance, $block ) = @_;
+
+        if(@_ != 2) {
+            $self->argument_error('first', 2, 2, scalar @_);
+        }
+
+        Mouse::Util::TypeConstraints::CodeRef($block)
+            or $instance->meta->throw_error(
+                "The argument passed to first must be a code reference");
+
+        return List::Util::first(\&{$block}, @{ $reader->($instance) });
     };
 }
 
@@ -34,9 +50,18 @@ sub generate_any {
     my($self) = @_;
     my $reader = $self->reader;
     return sub {
-        my ( $instance, $predicate ) = @_;
-        foreach (@{ $reader->($instance) }){
-            if($predicate->($_)){
+        my ( $instance, $block ) = @_;
+
+        if(@_ != 2) {
+            $self->argument_error('any', 2, 2, scalar @_);
+        }
+
+        Mouse::Util::TypeConstraints::CodeRef($block)
+            or $instance->meta->throw_error(
+                "The argument passed to any must be a code reference");
+
+        foreach (@{ $reader->($block) }){
+            if($block->($_)){
                 return 1;
             }
         }
@@ -49,6 +74,15 @@ sub generate_apply {
     my $reader = $self->reader;
     return sub {
         my ( $instance, $block ) = @_;
+
+        if(@_ != 2) {
+            $self->argument_error('apply', 2, 2, scalar @_);
+        }
+
+        Mouse::Util::TypeConstraints::CodeRef($block)
+            or $instance->meta->throw_error(
+                "The argument passed to apply must be a code reference");
+
         my @values = @{ $reader->($instance) };
         foreach (@values){
             $block->();
@@ -62,6 +96,15 @@ sub generate_map {
     my $reader = $self->reader;
     return sub {
         my ( $instance, $block ) = @_;
+
+        if(@_ != 2) {
+            $self->argument_error('map', 2, 2, scalar @_);
+        }
+
+        Mouse::Util::TypeConstraints::CodeRef($block)
+            or $instance->meta->throw_error(
+                "The argument passed to map must be a code reference");
+
         return map { $block->() } @{ $reader->($instance) };
     };
 }
@@ -71,6 +114,15 @@ sub generate_reduce {
     my $reader = $self->reader;
     return sub {
         my ( $instance, $block ) = @_;
+
+        if(@_ != 2) {
+            $self->argument_error('reduce', 2, 2, scalar @_);
+        }
+
+        Mouse::Util::TypeConstraints::CodeRef($block)
+            or $instance->meta->throw_error(
+                "The argument passed to reduce must be a code reference");
+
         our ($a, $b);
         return List::Util::reduce { $block->($a, $b) } @{ $reader->($instance) };
     };
@@ -80,10 +132,18 @@ sub generate_sort {
     my($self) = @_;
     my $reader = $self->reader;
     return sub {
-        my ( $instance, $compare ) = @_;
+        my ( $instance, $block ) = @_;
 
-        if ($compare) {
-            return sort { $compare->( $a, $b ) } @{ $reader->($instance) };
+        if(@_ < 1 or @_ > 2) {
+            $self->argument_error('sort', 1, 2, scalar @_);
+        }
+
+        if (defined $block) {
+            Mouse::Util::TypeConstraints::CodeRef($block)
+                or $instance->meta->throw_error(
+                    "The argument passed to sort must be a code reference");
+
+            return sort { $block->( $a, $b ) } @{ $reader->($instance) };
         }
         else {
             return sort @{ $reader->($instance) };
@@ -96,12 +156,19 @@ sub generate_sort_in_place {
     my $reader = $self->reader;
 
     return sub {
-        my ( $instance, $compare ) = @_;
+        my ( $instance, $block ) = @_;
+
+        if(@_ < 1 or @_ > 2) {
+            $self->argument_error('sort_in_place', 1, 2, scalar @_);
+        }
 
         my $array_ref = $reader->($instance);
 
-        if($compare){
-            @{$array_ref} = sort { $compare->($a, $b) } @{$array_ref};
+        if(defined $block){
+            Mouse::Util::TypeConstraints::CodeRef($block)
+                or $instance->meta->throw_error(
+                    "The argument passed to sort_in_place must be a code reference");
+            @{$array_ref} = sort { $block->($a, $b) } @{$array_ref};
         }
         else{
             @{$array_ref} = sort @{$array_ref};
@@ -179,6 +246,11 @@ sub generate_shuffle {
     my $reader = $self->reader;
     return sub {
         my ( $instance ) = @_;
+
+        if(@_ != 1) {
+            $self->argument_error('shuffle', 1, 1, scalar @_);
+        }
+
         return List::Util::shuffle @{ $reader->($instance) };
     };
 }
@@ -187,8 +259,17 @@ sub generate_grep {
     my($self) = @_;
     my $reader = $self->reader;
     return sub {
-        my ( $instance, $predicate ) = @_;
-        return grep { $predicate->() } @{ $reader->($instance) };
+        my ( $instance, $block ) = @_;
+
+        if(@_ != 2) {
+            $self->argument_error('grep', 2, 2, scalar @_);
+        }
+
+        Mouse::Util::TypeConstraints::CodeRef($block)
+            or $instance->meta->throw_error(
+                "The argument passed to grep must be a code reference");
+
+        return grep { $block->() } @{ $reader->($instance) };
     };
 }
 
@@ -197,9 +278,19 @@ sub generate_uniq {
     my $reader = $self->reader;
     return sub {
         my ( $instance ) = @_;
+
+        if(@_ != 1) {
+            $self->argument_error('uniq', 1, 1, scalar @_);
+        }
+
         my %seen;
         my $seen_undef;
-        return  grep{ (defined($_) ? ++$seen{$_} : ++$seen_undef) == 1 } @{ $reader->($instance) };
+        return  grep{
+            ( defined($_)
+                ? ++$seen{$_}
+                : ++$seen_undef
+            ) == 1
+        } @{ $reader->($instance) };
     };
 }
 
@@ -208,6 +299,11 @@ sub generate_elements {
     my $reader = $self->reader;
     return sub {
         my ($instance) = @_;
+
+        if(@_ != 1) {
+            $self->argument_error('elements', 1, 1, scalar @_);
+        }
+
         return @{ $reader->($instance) };
     };
 }
@@ -217,6 +313,15 @@ sub generate_join {
     my $reader = $self->reader;
     return sub {
         my ( $instance, $separator ) = @_;
+
+        if(@_ != 2) {
+            $self->argument_error('join', 2, 2, scalar @_);
+        }
+
+        Mouse::Util::TypeConstraints::Str($separator)
+            or $instance->meta->throw_error(
+                "The argument passed to join must be a string");
+
         return join $separator, @{ $reader->($instance) };
     };
 }
@@ -226,30 +331,28 @@ sub generate_push {
     my $reader     = $self->reader;
     my $constraint = $self->attr->type_constraint;
 
-    if ( $constraint->__is_parameterized ){
-        my $container_type_constraint = $constraint->type_parameter;
-        return sub {
-            my $instance = shift;
+    my $container_type_constraint = $constraint->__is_parameterized
+        ? $constraint->type_parameter
+        : undef;
+
+    return sub {
+        my $instance = shift;
+        if(defined $container_type_constraint) {
             foreach my $value(@_){
                 $container_type_constraint->assert_valid($value)
             }
-            push @{ $reader->($instance) }, @_;
-            return $instance;
-        };
-    }
-    else {
-        return sub {
-            my $instance = shift;
-            push @{ $reader->($instance) }, @_;
-            return $instance;
-        };
-    }
+        }
+        return push @{ $reader->($instance) }, @_;
+    };
 }
 
 sub generate_pop {
     my($self) = @_;
     my $reader = $self->reader;
     return sub {
+        if(@_ != 1) {
+            $self->argument_error('pop', 1, 1, scalar @_);
+        }
         return pop @{ $reader->( $_[0] ) };
     };
 }
@@ -259,24 +362,19 @@ sub generate_unshift {
     my $reader     = $self->reader;
     my $constraint = $self->attr->type_constraint;
 
-    if ( $constraint->__is_parameterized ){
-        my $container_type_constraint = $constraint->type_parameter;
-        return sub {
-            my $instance = shift;
+    my $container_type_constraint = $constraint->__is_parameterized
+        ? $constraint->type_parameter
+        : undef;
+
+    return sub {
+        my $instance = shift;
+        if(defined $container_type_constraint) {
             foreach my $value(@_){
                 $container_type_constraint->assert_valid($value)
             }
-            unshift @{ $reader->($instance) }, @_;
-            return $instance;
-        };
-    }
-    else {
-        return sub {
-            my $instance = shift;
-            unshift @{ $reader->($instance) }, @_;
-            return $instance;
-        };
-    }
+        }
+        return unshift @{ $reader->($instance) }, @_;
+    };
 }
 
 sub generate_shift {
@@ -284,6 +382,10 @@ sub generate_shift {
     my $reader = $self->reader;
 
     return sub {
+        if(@_ != 1) {
+            $self->argument_error('shift', 1, 1, scalar @_);
+        }
+
         return shift @{ $reader->( $_[0] ) };
     };
 }
@@ -294,7 +396,17 @@ sub generate_fetch {
     my $reader = $self->reader;
 
     return sub {
-        return $reader->( $_[0] )->[ $_[1] ];
+        my($instance, $idx) = @_;
+
+        if(@_ != 2) {
+            $self->argument_error('get', 2, 2, scalar @_);
+        }
+
+        Mouse::Util::TypeConstraints::Int($idx)
+            or $instance->meta->throw_error(
+                "The index passed to get must be an integer");
+
+        return $reader->( $instance )->[ $idx ];
     };
 }
 
@@ -304,18 +416,25 @@ sub generate_store {
     my $reader     = $self->reader;
     my $constraint = $self->attr->type_constraint;
 
-    if ( $constraint->__is_parameterized ){
-        my $container_type_constraint = $constraint->type_parameter;
-        return sub {
-            $container_type_constraint->assert_valid( $_[2] );
-            $reader->( $_[0] )->[ $_[1] ] = $_[2];
-        };
-    }
-    else {
-        return sub {
-            $reader->( $_[0] )->[ $_[1] ] = $_[2];
-        };
-    }
+    my $container_type_constraint = $constraint->__is_parameterized
+        ? $constraint->type_parameter
+        : undef;
+
+    return sub {
+        my($instance, $idx, $value) = @_;
+ 
+        if(@_ != 3) {
+            $self->argument_error('set', 3, 3, scalar @_);
+        }
+
+        Mouse::Util::TypeConstraints::Int($idx)
+            or $instance->meta->throw_error(
+                "The index argument passed to set must be an integer");
+
+        defined($container_type_constraint)
+            and $container_type_constraint->assert_valid( $value );
+        $reader->( $instance )->[ $idx ] = $value;
+    };
 }
 
 sub generate_accessor {
@@ -323,39 +442,34 @@ sub generate_accessor {
     my $reader     = $self->reader;
     my $constraint = $self->attr->type_constraint;
 
-    if ( $constraint->__is_parameterized ){
-        my $container_type_constraint = $constraint->type_parameter;
-        return sub {
-            my $instance = shift;
+    my $container_type_constraint = $constraint->__is_parameterized
+        ? $constraint->type_parameter
+        : undef;
 
-            if ( @_ == 1 ) {    # reader
-                return $reader->($instance)->[ $_[0] ];
-            }
-            elsif ( @_ == 2 ) {    # writer
-                $container_type_constraint->assert_valid( $_[1] );
-                $reader->($instance)->[ $_[0] ] = $_[1];
-            }
-            else {
-                confess "One or two arguments expected, not " . @_;
-            }
-        };
-    }
-    else {
-        return sub {
-            my $instance = shift;
+    return sub {
+        my($instance, $idx, $value) = @_;
 
-            if ( @_ == 1 ) {    # reader
-                return $reader->($instance)->[ $_[0] ];
-            }
-            elsif ( @_ == 2 ) {    # writer
-                $reader->($instance)->[ $_[0] ] = $_[1];
-                return $instance;
-            }
-            else {
-                confess "One or two arguments expected, not " . @_;
-            }
-        };
-    }
+
+        if ( @_ == 2 ) {    # reader
+            Mouse::Util::TypeConstraints::Int($idx)
+                or $instance->meta->throw_error(
+                    "The index argument passed to accessor must be an integer");
+
+            return $reader->($instance)->[ $idx ];
+        }
+        elsif ( @_ == 3) {    # writer
+            Mouse::Util::TypeConstraints::Int($idx)
+                or $instance->meta->throw_error(
+                    "The index argument passed to accessor must be an integer");
+            defined($container_type_constraint)
+                and $container_type_constraint->assert_valid( $value );
+
+            $reader->($instance)->[ $idx ] = $value;
+        }
+        else {
+            $self->argument_error('accessor', 2, 3, scalar @_);
+        }
+    };
 }
 
 sub generate_clear {
@@ -363,8 +477,14 @@ sub generate_clear {
     my $reader = $self->reader;
 
     return sub {
-        @{ $reader->( $_[0] ) } = ();
-        return $_[0];
+        my($instance) = @_;
+ 
+        if(@_ != 1) {
+            $self->argument_error('clear', 1, 1, scalar @_);
+        }
+
+        @{ $reader->( $instance ) } = ();
+        return $instance;
     };
 }
 
@@ -374,7 +494,17 @@ sub generate_remove {
     my $reader = $self->reader;
 
     return sub {
-        return splice @{ $reader->( $_[0] ) }, $_[1], 1;
+        my($instance, $idx) = @_;
+
+        if(@_ != 2) {
+            $self->argument_error('delete', 2, 2, scalar @_);
+        }
+
+        Mouse::Util::TypeConstraints::Int($idx)
+            or $instance->meta->throw_error(
+                "The index argument passed to delete must be an integer");
+
+        return splice @{ $reader->( $instance ) }, $idx, 1;
     };
 }
 
@@ -383,22 +513,28 @@ sub generate_insert {
     my $reader     = $self->reader;
     my $constraint = $self->attr->type_constraint;
 
-    if ( $constraint->__is_parameterized ){
-        my $container_type_constraint = $constraint->type_parameter;
-        return sub {
-            my($instance, $index, $value) = @_;
-            $container_type_constraint->assert_valid( $value );
-            splice @{ $reader->( $instance ) }, $index, 0, $value;
+    my $container_type_constraint = $constraint->__is_parameterized
+        ? $constraint->type_parameter
+        : undef;
+
+    return sub {
+        my($instance, $idx, $value) = @_;
+
+        if(@_ != 3) {
+            $self->argument_error('insert', 3, 3, scalar @_);
+        }
+
+        Mouse::Util::TypeConstraints::Int($idx)
+            or $instance->meta->throw_error(
+                "The index argument passed to insert must be an integer");
+
+            if(defined $container_type_constraint) {
+                $container_type_constraint->assert_valid( $value );
+            }
+
+            splice @{ $reader->( $instance ) }, $idx, 0, $value;
             return $instance;
-        };
-    }
-    else {
-        return sub {
-            my($instance, $index, $value) = @_;
-            splice @{ $reader->( $instance ) }, $index, 0, $value;
-            return $instance;
-        };
-    }
+    };
 }
 
 sub generate_splice {
@@ -406,23 +542,36 @@ sub generate_splice {
     my $reader     = $self->reader;
     my $constraint = $self->attr->type_constraint;
 
-    if ( $constraint->__is_parameterized ){
-        my $container_type_constraint = $constraint->type_parameter;
-        return sub {
-            my ( $self, $i, $j, @elems ) = @_;
+    my $container_type_constraint = $constraint->__is_parameterized
+        ? $constraint->type_parameter
+        : undef;
 
+    return sub {
+        my ( $instance, $idx, $len, @elems ) = @_;
+
+        if(@_ < 2) {
+            $self->argument_error('splice', 2, undef, scalar @_);
+        }
+
+        Mouse::Util::TypeConstraints::Int($idx)
+            or $instance->meta->throw_error(
+                "The index argument passed to splice must be an integer");
+
+        if(defined $len) {
+            Mouse::Util::TypeConstraints::Int($len)
+                or $instance->meta->throw_error(
+                    "The length argument passed to splice must be an integer");
+        }
+
+        if(defined $container_type_constraint and @elems) {
             foreach my $value(@elems){
                 $container_type_constraint->assert_valid($value);
             }
-            return splice @{ $reader->($self) }, $i, $j, @elems;
-        };
-    }
-    else {
-        return sub {
-            my ( $self, $i, $j, @elems ) = @_;
-            return splice @{ $reader->($self) }, $i, $j, @elems;
-        };
-    }
+        }
+        return defined($len)
+            ? splice @{ $reader->($instance) }, $idx, $len, @elems
+            : splice @{ $reader->($instance) }, $idx;
+    };
 }
 
 sub generate_for_each {
