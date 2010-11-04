@@ -30,7 +30,7 @@ sub f{
     return md5_hex($_[0]);
 }
 
-print "sort_by (10 items)\n";
+print "sort_by vs. sort (10 items)\n";
 cmpthese -1 => {
     sort_by => sub{
         my $o = MouseList->new(list => [0 .. 10]);
@@ -42,7 +42,7 @@ cmpthese -1 => {
     },
 };
 
-print "sort_by (100 items)\n";
+print "sort_by vs. sort (100 items)\n";
 cmpthese timethese -1 => {
     sort_by => sub{
         my $o = MouseList->new(list => [0 .. 100]);

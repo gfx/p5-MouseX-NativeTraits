@@ -52,7 +52,7 @@ print "Benchmark for native traits (Array)\n";
 my $mouse = MouseStack->new;
 my $moose = MooseStack->new;
 
-print "push && pop\n";
+print "push && pop && is_empty\n";
 cmpthese -1 => {
     Mouse => sub{
         $mouse->push($_) for 1 .. 100;

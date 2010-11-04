@@ -60,7 +60,7 @@ sub generate_any {
             or $instance->meta->throw_error(
                 "The argument passed to any must be a code reference");
 
-        foreach (@{ $reader->($block) }){
+        foreach (@{ $reader->($instance) }){
             if($block->($_)){
                 return 1;
             }
@@ -188,6 +188,10 @@ sub generate_sort_by {
     return sub {
         my ( $instance, $block, $compare ) = @_;
 
+        if(@_ < 1 or @_ > 3) {
+            $self->argument_error('sort_by', 1, 3, scalar @_);
+        }
+
         my $array_ref = $reader->($instance);
         my @idx;
         foreach (@{$array_ref}){ # intentinal use of $_
@@ -217,6 +221,10 @@ sub generate_sort_in_place_by {
 
     return sub {
         my ( $instance, $block, $compare ) = @_;
+
+        if(@_ < 1 or @_ > 3) {
+            $self->argument_error('sort_by', 1, 3, scalar @_);
+        }
 
         my $array_ref = $reader->($instance);
         my @idx;
