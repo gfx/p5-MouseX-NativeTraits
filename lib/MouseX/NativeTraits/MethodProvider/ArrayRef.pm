@@ -337,20 +337,15 @@ sub generate_join {
 sub generate_push {
     my($self) = @_;
     my $reader     = $self->reader;
-    my $constraint = $self->attr->type_constraint;
-
-    my $container_type_constraint = $constraint->__is_parameterized
-        ? $constraint->type_parameter
-        : undef;
+    my $writer     = $self->writer;
 
     return sub {
-        my $instance = shift;
-        if(defined $container_type_constraint) {
-            foreach my $value(@_){
-                $container_type_constraint->assert_valid($value)
-            }
-        }
-        return push @{ $reader->($instance) }, @_;
+        my($instance, @values) = @_;
+
+        my @new_values = @{ $reader->($instance) };
+        push @new_values, @values;
+        $writer->($instance, \@new_values); # commit
+        return scalar @new_values;
     };
 }
 
@@ -368,20 +363,15 @@ sub generate_pop {
 sub generate_unshift {
     my($self) = @_;
     my $reader     = $self->reader;
-    my $constraint = $self->attr->type_constraint;
-
-    my $container_type_constraint = $constraint->__is_parameterized
-        ? $constraint->type_parameter
-        : undef;
+    my $writer     = $self->writer;
 
     return sub {
-        my $instance = shift;
-        if(defined $container_type_constraint) {
-            foreach my $value(@_){
-                $container_type_constraint->assert_valid($value)
-            }
-        }
-        return unshift @{ $reader->($instance) }, @_;
+        my($instance, @values) = @_;
+
+        my @new_values = @{ $reader->($instance) };
+        unshift @new_values, @values;
+        $writer->($instance, \@new_values); # commit
+        return scalar @new_values;
     };
 }
 
@@ -422,11 +412,7 @@ __PACKAGE__->meta->add_method(generate_set => \&generate_store); # alias
 sub generate_store {
     my($self) = @_;
     my $reader     = $self->reader;
-    my $constraint = $self->attr->type_constraint;
-
-    my $container_type_constraint = $constraint->__is_parameterized
-        ? $constraint->type_parameter
-        : undef;
+    my $writer     = $self->writer;
 
     return sub {
         my($instance, $idx, $value) = @_;
@@ -439,20 +425,17 @@ sub generate_store {
             or $instance->meta->throw_error(
                 "The index argument passed to set must be an integer");
 
-        defined($container_type_constraint)
-            and $container_type_constraint->assert_valid( $value );
-        $reader->( $instance )->[ $idx ] = $value;
+        my @new_values = @{ $reader->($instance) };
+        $new_values[$idx] = $value;
+        $writer->($instance, \@new_values); # commit
+        return $value;
     };
 }
 
 sub generate_accessor {
     my($self) = @_;
     my $reader     = $self->reader;
-    my $constraint = $self->attr->type_constraint;
-
-    my $container_type_constraint = $constraint->__is_parameterized
-        ? $constraint->type_parameter
-        : undef;
+    my $writer     = $self->writer;
 
     return sub {
         my($instance, $idx, $value) = @_;
@@ -469,10 +452,11 @@ sub generate_accessor {
             Mouse::Util::TypeConstraints::Int($idx)
                 or $instance->meta->throw_error(
                     "The index argument passed to accessor must be an integer");
-            defined($container_type_constraint)
-                and $container_type_constraint->assert_valid( $value );
 
-            $reader->($instance)->[ $idx ] = $value;
+            my @new_values = @{ $reader->($instance) };
+            $new_values[$idx] = $value;
+            $writer->($instance, \@new_values); # commit
+            return $value;
         }
         else {
             $self->argument_error('accessor', 2, 3, scalar @_);
@@ -519,11 +503,7 @@ sub generate_remove {
 sub generate_insert {
     my($self) = @_;
     my $reader     = $self->reader;
-    my $constraint = $self->attr->type_constraint;
-
-    my $container_type_constraint = $constraint->__is_parameterized
-        ? $constraint->type_parameter
-        : undef;
+    my $writer     = $self->writer;
 
     return sub {
         my($instance, $idx, $value) = @_;
@@ -536,23 +516,17 @@ sub generate_insert {
             or $instance->meta->throw_error(
                 "The index argument passed to insert must be an integer");
 
-            if(defined $container_type_constraint) {
-                $container_type_constraint->assert_valid( $value );
-            }
-
-            splice @{ $reader->( $instance ) }, $idx, 0, $value;
-            return $instance;
+        my @new_values = @{ $reader->($instance) };
+        splice @new_values, $idx, 0, $value;
+        $writer->($instance, \@new_values); # commit
+        return $instance;
     };
 }
 
 sub generate_splice {
     my($self) = @_;
     my $reader     = $self->reader;
-    my $constraint = $self->attr->type_constraint;
-
-    my $container_type_constraint = $constraint->__is_parameterized
-        ? $constraint->type_parameter
-        : undef;
+    my $writer     = $self->writer;
 
     return sub {
         my ( $instance, $idx, $len, @elems ) = @_;
@@ -571,14 +545,12 @@ sub generate_splice {
                     "The length argument passed to splice must be an integer");
         }
 
-        if(defined $container_type_constraint and @elems) {
-            foreach my $value(@elems){
-                $container_type_constraint->assert_valid($value);
-            }
-        }
-        return defined($len)
-            ? splice @{ $reader->($instance) }, $idx, $len, @elems
-            : splice @{ $reader->($instance) }, $idx;
+        my @new_values = @{ $reader->($instance) };
+        my @ret_values = defined($len)
+            ? splice @new_values, $idx, $len, @elems
+            : splice @new_values, $idx;
+        $writer->($instance, \@new_values); # commit
+        return wantarray ? @ret_values : $ret_values[-1];
     };
 }
 

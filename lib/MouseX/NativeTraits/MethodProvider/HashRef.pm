@@ -153,7 +153,6 @@ sub generate_store {
 
     my $reader     = $self->reader;
     my $writer     = $self->writer;
-    my $constraint = $self->attr->type_constraint;
 
     return sub {
         my ( $instance, @kv ) = @_;
@@ -161,18 +160,16 @@ sub generate_store {
             $self->argument_error('set', 2, undef, scalar @_);
         }
 
-        my %new_value = %{ $reader->($instance) };
+        my %new_value = %{ $reader->($instance) }; # copy
         my @ret_value;
         while (my ($key, $value) = splice @kv, 0, 2 ) {
             defined($key)
                 or $self->meta->throw_error(
                     "Hash keys passed to set must be defined" );
-            push @ret_value, $new_value{$key} = $value;
+            push @ret_value, $new_value{$key} = $value; # change
         }
 
-        $constraint->check(\%new_value);
-        
-        $writer->( $instance, \%new_value );
+        $writer->( $instance, \%new_value ); # commit
         return wantarray ? @ret_value : $ret_value[-1];
     };
 }
@@ -181,11 +178,7 @@ sub generate_accessor {
     my($self) = @_;
 
     my $reader     = $self->reader;
-    my $constraint = $self->attr->type_constraint;
-
-    my $container_type_constraint = $constraint->__is_parameterized
-        ? $constraint->type_parameter
-        : undef;
+    my $writer     = $self->writer;
 
     return sub {
         my($instance, $key, $value) = @_;;
@@ -200,9 +193,9 @@ sub generate_accessor {
             defined($key)
                 or $self->meta->throw_error(
                     "Hash keys passed to accessor must be defined" );
-            defined($container_type_constraint)
-                and $container_type_constraint->assert_valid( $value );
-            $reader->($instance)->{ $key } = $value;
+            my %new_value = %{ $reader->($instance) };
+            $new_value{$key} = $value;
+            $writer->($instance, \%new_value); # commit
         }
         else {
             $self->argument_error('accessor', 2, 3, scalar @_);
