@@ -9,7 +9,7 @@ requires 'Mouse' => 0.82;
 
 test_requires 'Any::Moose'  => 0.13;
 test_requires 'Test::More'  => 0.88; # done_testing()
-test_requires 'Test::Fatal' => 0.03;
+test_requires 'Test::Fatal' => 0.003;
 
 tests_recursive 't';
 
