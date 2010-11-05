@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use Test::More;
-use Test::Exception;
+use Test::Fatal;
 
 {
     package Foo;
@@ -19,7 +19,6 @@ use Test::Exception;
         traits => ['Array'],
         is     => 'ro',
         isa    => 'ArrayRef[Foo]',
-        default => sub{ [] },
     );
 
     package Bulkie::Role;
@@ -29,7 +28,6 @@ use Test::Exception;
         traits  => ['Array'],
         is      => 'ro',
         isa     => 'ArrayRef',
-        default => sub{ [] },
         handles => {
             get_stuff => 'get',
         }
@@ -38,11 +36,11 @@ use Test::Exception;
     package Stuff;
     use Mouse;
 
-    ::lives_ok{ with 'Stuffed::Role';
-        } '... this should work correctly';
+    ::is( ::exception { with 'Stuffed::Role';
+        }, undef, '... this should work correctly' );
 
-    ::lives_ok{ with 'Bulkie::Role';
-        } '... this should work correctly';
+    ::is( ::exception { with 'Bulkie::Role';
+        }, undef, '... this should work correctly' );
 }
 
 done_testing;

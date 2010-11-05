@@ -228,9 +228,9 @@ sub generate_delete {
         }
         my $instance = shift;
 
-        my $r = delete @{ $reader->($instance) }{@_};
+        my @r = delete @{ $reader->($instance) }{@_};
         defined($trigger) and $trigger->($instance);
-        return $r;
+        return wantarray ? @r : $r[-1];
     };
 }
 
