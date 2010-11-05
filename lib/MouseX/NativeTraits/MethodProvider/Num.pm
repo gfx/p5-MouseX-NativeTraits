@@ -11,6 +11,9 @@ sub generate_add {
 
     return sub {
         my($instance, $value) = @_;
+        if(@_ != 2) {
+            $self->argument_error('add', 2, 2, scalar @_);
+        }
         $constraint->assert_valid($value);
         $writer->( $instance, $reader->( $instance ) + $value );
     };
@@ -24,6 +27,9 @@ sub generate_sub {
 
     return sub {
         my($instance, $value) = @_;
+        if(@_ != 2) {
+            $self->argument_error('sub', 2, 2, scalar @_);
+        }
         $constraint->assert_valid($value);
         $writer->( $instance, $reader->( $instance ) - $value );
     };
@@ -37,6 +43,9 @@ sub generate_mul {
 
     return sub {
         my($instance, $value) = @_;
+        if(@_ != 2) {
+            $self->argument_error('mul', 2, 2, scalar @_);
+        }
         $constraint->assert_valid($value);
         $writer->( $instance, $reader->( $instance ) * $value );
     };
@@ -50,6 +59,9 @@ sub generate_div {
 
     return sub {
         my($instance, $value) = @_;
+        if(@_ != 2) {
+            $self->argument_error('div', 2, 2, scalar @_);
+        }
         $constraint->assert_valid($value);
         $writer->( $instance, $reader->( $instance ) / $value );
     };
@@ -63,6 +75,9 @@ sub generate_mod {
 
     return sub {
         my($instance, $value) = @_;
+        if(@_ != 2) {
+            $self->argument_error('mod', 2, 2, scalar @_);
+        }
         $constraint->assert_valid($value);
         $writer->( $instance, $reader->( $instance ) % $value );
     };
@@ -76,6 +91,9 @@ sub generate_abs {
 
     return sub {
         my($instance) = @_;
+        if(@_ != 1) {
+            $self->argument_error('abs', 1, 1, scalar @_);
+        }
         $writer->( $instance, abs( $reader->( $instance ) ) );
     };
 }
