@@ -78,13 +78,13 @@ sub argument_error {
     }
 
     my $message = 'Cannot call %s %s argument%s';
- 
+
     if($min == 0 and $max == 0 && $nargs > 0) {
         $self->meta->throw_error(
             sprintf $message,
                 $name, 'with any', 's' );
     }
- 
+
     $self->meta->throw_error(
         sprintf 'Cannot call %s %s %d argument%s',
             $name, ($nargs < $min

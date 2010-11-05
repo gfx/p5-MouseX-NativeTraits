@@ -7,21 +7,36 @@ sub generate_keys {
     my($self) = @_;
     my $reader = $self->reader;
 
-    return sub { return keys %{ $reader->( $_[0] ) } };
+    return sub {
+        if(@_ != 1) {
+            $self->argument_error('keys', 1, 1, scalar @_);
+        }
+        return keys %{ $reader->( $_[0] ) };
+    };
 }
 
 sub generate_sorted_keys {
     my($self) = @_;
     my $reader = $self->reader;
 
-    return sub { return sort keys %{ $reader->( $_[0] ) } };
+    return sub {
+        if(@_ != 1) {
+            $self->argument_error('sorted_keys', 1, 1, scalar @_);
+        }
+        return sort keys %{ $reader->( $_[0] ) };
+    };
 }
 
 sub generate_values {
     my($self) = @_;
     my $reader = $self->reader;
 
-    return sub { return values %{ $reader->( $_[0] ) } };
+    return sub {
+        if(@_ != 1) {
+            $self->argument_error('values', 1, 1, scalar @_);
+        }
+        return values %{ $reader->( $_[0] ) };
+    };
 }
 
 sub generate_kv {
@@ -29,8 +44,10 @@ sub generate_kv {
     my $reader = $self->reader;
 
     return sub {
-        my($instance) = @_;
-        my $hash_ref = $reader->( $instance );
+        if(@_ != 1) {
+            $self->argument_error('kv', 1, 1, scalar @_);
+        }
+        my $hash_ref = $reader->( $_[0] );
         return map { [ $_ => $hash_ref->{$_} ] } keys %{ $hash_ref };
     };
 }
@@ -40,6 +57,9 @@ sub generate_elements {
     my $reader = $self->reader;
 
     return sub {
+        if(@_ != 1) {
+            $self->argument_error('elements', 1, 1, scalar @_);
+        }
         return %{ $reader->( $_[0] ) };
     };
 }
@@ -49,6 +69,9 @@ sub generate_count {
     my $reader = $self->reader;
 
     return sub {
+        if(@_ != 1) {
+            $self->argument_error('count', 1, 1, scalar @_);
+        }
         return scalar keys %{ $reader->( $_[0] ) };
     };
 }
@@ -58,6 +81,9 @@ sub generate_is_empty {
     my $reader = $self->reader;
 
     return sub {
+        if(@_ != 1) {
+            $self->argument_error('is_empty', 1, 1, scalar @_);
+        }
         return scalar(keys %{ $reader->( $_[0] ) }) == 0;
     };
 }
@@ -66,14 +92,32 @@ sub generate_exists {
     my($self) = @_;
     my $reader = $self->reader;
 
-    return sub { return exists $reader->( $_[0] )->{ $_[1] } };
+    return sub {
+        my($instance, $key) = @_;
+        if(@_ != 2) {
+            $self->argument_error('exists', 2, 2, scalar @_);
+        }
+        defined($key)
+            or $self->meta->throw_error(
+                "Hash keys passed to exists must be defined" );
+        return exists $reader->( $instance )->{ $key };
+    }
 }
 
 sub generate_defined {
     my($self) = @_;
     my $reader = $self->reader;
 
-    return sub { return defined $reader->( $_[0] )->{ $_[1] } };
+    return sub {
+        my($instance, $key) = @_;
+        if(@_ != 2) {
+            $self->argument_error('defined', 2, 2, scalar @_);
+        }
+        defined($key)
+            or $self->meta->throw_error(
+                "Hash keys passed to defined must be defined" );
+        return defined $reader->( $instance )->{ $key };
+    }
 }
 
 __PACKAGE__->meta->add_method(generate_get => \&generate_fetch);
@@ -82,12 +126,22 @@ sub generate_fetch {
     my $reader = $self->reader;
 
     return sub {
-        if ( @_ == 2 ) {
-            return $reader->( $_[0] )->{ $_[1] };
+        if(@_ < 2) {
+            $self->argument_error('get', 2, undef, scalar @_);
+        }
+
+        my $instance = shift;
+        foreach my $key(@_) {
+            defined($key)
+                or $self->meta->throw_error(
+                    "Hash keys passed to get must be defined" );
+        }
+
+        if ( @_ == 1 ) {
+            return $reader->( $instance )->{ $_[0] };
         }
         else {
-            my ( $self, @keys ) = @_;
-            return @{ $reader->($self) }{@keys};
+            return @{ $reader->($instance) }{@_};
         }
     };
 }
@@ -98,40 +152,29 @@ sub generate_store {
     my($self) = @_;
 
     my $reader     = $self->reader;
+    my $writer     = $self->writer;
     my $constraint = $self->attr->type_constraint;
 
-    if ($constraint->__is_parameterized){
-        my $container_type_constraint = $constraint->type_parameter;
-        return sub {
-            my ( $self, @kv ) = @_;
+    return sub {
+        my ( $instance, @kv ) = @_;
+        if(@_ < 2) {
+            $self->argument_error('set', 2, undef, scalar @_);
+        }
 
-            my ( @keys, @values );
+        my %new_value = %{ $reader->($instance) };
+        my @ret_value;
+        while (my ($key, $value) = splice @kv, 0, 2 ) {
+            defined($key)
+                or $self->meta->throw_error(
+                    "Hash keys passed to set must be defined" );
+            push @ret_value, $new_value{$key} = $value;
+        }
 
-            while (my($key, $value) = splice @kv, 0, 2 ) {
-                $container_type_constraint->assert_valid($value);
-                push @keys,   $key;
-                push @values, $value;
-            }
-
-            if ( @values > 1 ) {
-                @{ $reader->($self) }{@keys} = @values;
-            }
-            else {
-                $reader->($self)->{ $keys[0] } = $values[0];
-            }
-        };
-    }
-    else {
-        return sub {
-            my ( $instance, @kv ) = @_;
-
-            my $hash_ref = $reader->($instance);
-
-            while (my($key, $value) = splice @kv, 0, 2) {
-                $hash_ref->{$key} = $value;
-            }
-        };
-    }
+        $constraint->check(\%new_value);
+        
+        $writer->( $instance, \%new_value );
+        return wantarray ? @ret_value : $ret_value[-1];
+    };
 }
 
 sub generate_accessor {
@@ -140,38 +183,31 @@ sub generate_accessor {
     my $reader     = $self->reader;
     my $constraint = $self->attr->type_constraint;
 
-    if ($constraint->__is_parameterized){
-        my $container_type_constraint = $constraint->type_parameter;
-        return sub {
-            my $self = shift;
+    my $container_type_constraint = $constraint->__is_parameterized
+        ? $constraint->type_parameter
+        : undef;
 
-            if ( @_ == 1 ) {    # reader
-                return $reader->($self)->{ $_[0] };
-            }
-            elsif ( @_ == 2 ) {    # writer
-                $container_type_constraint->assert_valid( $_[1] );
-                $reader->($self)->{ $_[0] } = $_[1];
-            }
-            else {
-                confess "One or two arguments expected, not " . @_;
-            }
-        };
-    }
-    else {
-        return sub {
-            my $self = shift;
+    return sub {
+        my($instance, $key, $value) = @_;;
 
-            if ( @_ == 1 ) {    # reader
-                return $reader->($self)->{ $_[0] };
-            }
-            elsif ( @_ == 2 ) {    # writer
-                $reader->($self)->{ $_[0] } = $_[1];
-            }
-            else {
-                confess "One or two arguments expected, not " . @_;
-            }
-        };
-    }
+        if ( @_ == 2 ) {    # reader
+            defined($key)
+                or $self->meta->throw_error(
+                    "Hash keys passed to accessor must be defined" );
+            return $reader->($instance)->{ $key };
+        }
+        elsif ( @_ == 3 ) {    # writer
+            defined($key)
+                or $self->meta->throw_error(
+                    "Hash keys passed to accessor must be defined" );
+            defined($container_type_constraint)
+                and $container_type_constraint->assert_valid( $value );
+            $reader->($instance)->{ $key } = $value;
+        }
+        else {
+            $self->argument_error('accessor', 2, 3, scalar @_);
+        }
+    };
 }
 
 sub generate_clear {
@@ -179,16 +215,25 @@ sub generate_clear {
 
     my $reader  = $self->reader;
 
-    return sub { %{ $reader->( $_[0] ) } = () };
+    return sub {
+        if(@_ != 1) {
+            $self->argument_error('clear', 1, 1, scalar @_);
+        }
+        %{ $reader->( $_[0] ) } = ();
+    };
 }
 
 sub generate_delete {
     my($self) = @_;
 
-    my $reader  = $self->reader;
+    my $reader = $self->reader;
 
     return sub {
+        if(@_ < 2) {
+            $self->argument_error('delete', 2, undef, scalar @_);
+        }
         my $instance = shift;
+
         return delete @{ $reader->($instance) }{@_};
     };
 }
@@ -196,13 +241,21 @@ sub generate_delete {
 sub generate_for_each_key {
     my($self) = @_;
 
-    my $reader     = $self->reader;
+    my $reader = $self->reader;
 
     return sub {
         my($instance, $block) = @_;
 
-        foreach my $key(keys %{$reader->($instance)}){
-            $block->($key);
+        if(@_ != 2) {
+            $self->argument_error('for_each_key', 2, 2, scalar @_);
+        }
+
+        Mouse::Util::TypeConstraints::CodeRef($block)
+            or $instance->meta->throw_error(
+                "The argument passed to for_each_key must be a code reference");
+
+        foreach (keys %{$reader->($instance)}) { # intentional use of $_
+            $block->($_);
         }
 
         return $instance;
@@ -212,13 +265,21 @@ sub generate_for_each_key {
 sub generate_for_each_value {
     my($self) = @_;
 
-    my $reader     = $self->reader;
+    my $reader = $self->reader;
 
     return sub {
         my($instance, $block) = @_;
 
-        foreach my $value(values %{$reader->($instance)}){
-            $block->($value);
+        if(@_ != 2) {
+            $self->argument_error('for_each_value', 2, 2, scalar @_);
+        }
+
+        Mouse::Util::TypeConstraints::CodeRef($block)
+            or $instance->meta->throw_error(
+                "The argument passed to for_each_value must be a code reference");
+
+        foreach (values %{$reader->($instance)}) { # intentional use of $_
+            $block->($_);
         }
 
         return $instance;
@@ -232,6 +293,14 @@ sub generate_for_each_pair {
 
     return sub {
         my($instance, $block) = @_;
+
+        if(@_ != 2) {
+            $self->argument_error('for_each_pair', 2, 2, scalar @_);
+        }
+
+        Mouse::Util::TypeConstraints::CodeRef($block)
+            or $instance->meta->throw_error(
+                "The argument passed to for_each_pair must be a code reference");
 
         my $hash_ref = $reader->($instance);
         foreach my $key(keys %{$hash_ref}){
