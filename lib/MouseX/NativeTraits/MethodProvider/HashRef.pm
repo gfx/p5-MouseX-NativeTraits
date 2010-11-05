@@ -219,7 +219,8 @@ sub generate_clear {
 sub generate_delete {
     my($self) = @_;
 
-    my $reader = $self->reader;
+    my $reader  = $self->reader;
+    my $trigger = $self->attr->trigger;
 
     return sub {
         if(@_ < 2) {
@@ -227,7 +228,9 @@ sub generate_delete {
         }
         my $instance = shift;
 
-        return delete @{ $reader->($instance) }{@_};
+        my $r = delete @{ $reader->($instance) }{@_};
+        defined($trigger) and $trigger->($instance);
+        return $r;
     };
 }
 
