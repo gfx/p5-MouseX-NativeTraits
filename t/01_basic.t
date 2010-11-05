@@ -5,7 +5,7 @@ use Test::More;
 
 {
     package MyClass;
-    use Mouse;
+    use Any::Moose;
 
     has stack => (
         is  => 'rw',
@@ -29,7 +29,7 @@ use Test::More;
         traits => ['Hash'],
 
         handles => {
-            keys    => 'sorted_keys',
+            keys    => 'keys',
             values  => 'values',
             store_to_map => 'set',
             map_count    => 'count',
@@ -59,12 +59,12 @@ ok $o->stack_is_empty;
 note 'Hash';
 
 $o->store_to_map(aaa => 42, bbb => 10);
-is join(' ', $o->keys),        'aaa bbb';
+is join(' ', sort $o->keys),   'aaa bbb';
 is join(' ', sort $o->values), '10 42';
 is $o->map_count, 2;
 
 $o->store_to_map(ccc => 99);
-is join(' ', $o->keys),        'aaa bbb ccc';
+is join(' ', sort $o->keys),   'aaa bbb ccc';
 is join(' ', sort $o->values), '10 42 99';
 is $o->map_count, 3;
 

@@ -3,14 +3,15 @@
 use strict;
 use warnings;
 
-use lib 't/lib';
-
-use Mouse ();
-use Mouse::Util::TypeConstraints;
+use Any::Moose ();
+use Any::Moose '::Util::TypeConstraints';
 #use NoInlineAttribute;
-use Test::Fatal;
 use Test::More;
-use Test::Mouse;
+use Test::Fatal;
+BEGIN {
+    eval 'use Test::' . any_moose();
+}
+
 
 {
     my %handles = (
@@ -28,9 +29,9 @@ use Test::Mouse;
     sub build_class {
         my %attr = @_;
 
-        my $class = Mouse::Meta::Class->create(
+        my $class = any_moose('::Meta::Class')->create(
             $name++,
-            superclasses => ['Mouse::Object'],
+            superclasses => [any_moose '::Object'],
         );
 
         my @traits = 'Counter';

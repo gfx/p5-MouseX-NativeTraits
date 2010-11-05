@@ -5,7 +5,7 @@ use Test::More;
 use Test::Fatal;
 
 {
-    use Mouse::Util::TypeConstraints;
+    use Any::Moose '::Util::TypeConstraints';
     use List::Util qw(sum);
 
     subtype 'A1', as 'ArrayRef[Int]';
@@ -15,12 +15,11 @@ use Test::Fatal;
     subtype 'A5', as 'ArrayRef';
     coerce 'A5', from 'Str', via { [ $_ ] };
 
-    no Mouse::Util::TypeConstraints;
 }
 
 {
     package Foo;
-    use Mouse;
+    use Any::Moose;
 
     has array => (
         traits  => ['Array'],

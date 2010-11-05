@@ -2,17 +2,17 @@
 
 use strict;
 use Test::More;
-use Test::Exception;
+use Test::Fatal;
 
-use Mouse;
+use Any::Moose;
 
-lives_ok {
+is exception {
     has foo => (
         traits  => [qw(Array)],
         default => sub{ [] },
         handles => { mypush0 => 'push' },
     );
-} '"is" parameter can be omitted';
+}, undef, '"is" parameter can be omitted';
 
 #throws_ok {
 #    has bar1 => (
@@ -21,21 +21,22 @@ lives_ok {
 #    );
 #} qr/default .* is \s+ required/xms;
 
-throws_ok {
+my $e = exception {
     has bar2 => (
         traits  => [qw(Array)],
         default => sub{ [] },
         handles => { push => 'mypush2' },
     );
-} qr/\b unsupported \b/xms;
+};
+like $e, qr/\b unsupported \b/xms, 'wrong use of handles';
 
-throws_ok {
+like exception {
     has bar3 => (
         traits  => [qw(Array)],
         isa     => 'HashRef',
         default => sub{ [] },
         handles => { mypush3 => 'push' },
     );
-} qr/must be a subtype of ArrayRef/;
+}, qr/must be a subtype of ArrayRef/;
 
 done_testing;

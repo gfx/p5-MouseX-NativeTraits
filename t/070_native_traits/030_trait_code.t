@@ -1,12 +1,15 @@
 use strict;
 use warnings;
 
-use lib 't/lib';
-
-use Mouse ();
+use Any::Moose ();
+use Any::Moose '::Util::TypeConstraints';
 #use NoInlineAttribute;
 use Test::More;
-use Test::Mouse;
+use Test::Fatal;
+BEGIN {
+    eval 'use Test::' . any_moose();
+}
+
 
 {
     my $name = 'Foo1';
@@ -14,9 +17,9 @@ use Test::Mouse;
     sub build_class {
         my ( $attr1, $attr2, $attr3, $no_inline ) = @_;
 
-        my $class = Mouse::Meta::Class->create(
+        my $class = any_moose('::Meta::Class')->create(
             $name++,
-            superclasses => ['Mouse::Object'],
+            superclasses => [any_moose '::Object'],
         );
 
         my @traits = 'Code';

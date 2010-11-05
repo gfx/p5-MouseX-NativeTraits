@@ -1,5 +1,5 @@
 #!perl -w
-
+# Mouse specific features
 use strict;
 use Test::More;
 
@@ -22,9 +22,23 @@ use Test::More;
         },
         default => sub{ [] },
     );
+
+    has hash => (
+        is  => 'rw',
+        isa => 'HashRef',
+
+        traits => ['Hash'],
+
+        handles => {
+           sorted_keys => 'sorted_keys', 
+        },
+        default => sub{ {} },
+    );
 }
 
 my $o = MyClass->new(list => [ {value => 3}, {value => 10}, { value => 0 } ]);
+
+note 'Array';
 
 ok $o->any(sub{ $_->{value} == 0 }), 'any';
 
@@ -40,5 +54,10 @@ is join(' ', $o->apply(sub{ $_ = $_->{value} })),
 
 is join(' ', $o->map(sub{ $_->{value} })),
     '0 3 10', 'apply does not affect the original value';
+
+note 'Hash';
+
+$o->hash({ 'a' => 10, 'b' => 20, 'c' => 30 });
+is join(' ', $o->sorted_keys), 'a b c', 'sorted_keys';
 
 done_testing;

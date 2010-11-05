@@ -3,16 +3,18 @@
 use strict;
 use warnings;
 
-#use lib 't/lib';
-
-use Mouse ();
-use Mouse::Util::TypeConstraints;
+use Any::Moose ();
+use Any::Moose '::Util::TypeConstraints';
 #use NoInlineAttribute;
-use Test::Fatal;
 use Test::More;
-use Test::Mouse;
+use Test::Fatal;
+BEGIN {
+    eval 'use Test::' . any_moose();
+}
+
 
 {
+    my $any_moose_is_mouse = any_moose() eq 'Mouse';
     my %handles = (
         abs         => 'abs',
         add         => 'add',
@@ -26,15 +28,18 @@ use Test::Mouse;
         sub         => 'sub',
         dec         => [ sub => 1 ],
     );
+    if(!$any_moose_is_mouse) {
+        $handles{set} = 'set';
+    }
 
     my $name = 'Foo1';
 
     sub build_class {
         my %attr = @_;
 
-        my $class = Mouse::Meta::Class->create(
+        my $class = any_moose('::Meta::Class')->create(
             $name++,
-            superclasses => ['Mouse::Object'],
+            superclasses => [any_moose '::Object'],
         );
 
         my @traits = 'Number';
@@ -48,7 +53,7 @@ use Test::Mouse;
                 isa     => 'Int',
                 default => 5,
                 handles => \%handles,
-                writer  => 'set',
+                ($any_moose_is_mouse ? (writer  => 'set') : ()),
                 clearer => '_clear_integer',
                 %attr,
             ),

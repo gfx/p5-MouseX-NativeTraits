@@ -1,17 +1,24 @@
 use strict;
 use warnings;
 use inc::Module::Install;
+use Module::Install::TestTarget;
 
 all_from 'lib/MouseX/NativeTraits.pm';
 
-requires 'Mouse' => 0.74;
+requires 'Mouse' => 0.82;
 
-test_requires 'Test::More'      => 0.88; # done_testing()
-test_requires 'Test::Exception' => 0.29;
+test_requires 'Any::Moose'  => 0.13;
+test_requires 'Test::More'  => 0.88; # done_testing()
+test_requires 'Test::Fatal' => 0.03;
 
 tests_recursive 't';
 
 auto_set_repository() if -d '.git';
+
+default_test_target env => { ANY_MOOSE => 'Mouse' };
+test_target 'test_moose' => (
+    env => { ANY_MOOSE => 'Moose' },
+);
 
 clean_files qw(
     MouseX-NativeTraits-* *.stackdump
