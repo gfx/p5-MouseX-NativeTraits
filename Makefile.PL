@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 use inc::Module::Install;
-use Module::Install::TestTarget;
+use Module::Install::TestTarget 0.12;
 
 all_from 'lib/MouseX/NativeTraits.pm';
 

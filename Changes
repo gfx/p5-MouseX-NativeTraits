@@ -1,5 +1,8 @@
 Revision history for Perl extension MouseX::NativeTraits
 
+1.02 2010-11-06 19:36:15
+    - Fix testing issue on Windows/nmake
+
 1.01 2010-11-05 20:27:52
     - Requires Mouse 0.82 for type constraint robusity
     - Follow Moose 1.19 except for smart coercions
