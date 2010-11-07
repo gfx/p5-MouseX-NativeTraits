@@ -15,7 +15,10 @@ tests_recursive 't';
 
 auto_set_repository() if -d '.git';
 
-default_test_target env => { ANY_MOOSE => 'Mouse' };
+default_test_target
+    load_modules => [qw(Test::Builder)], # workaround T::B 2.00_01 problems
+    env          => { ANY_MOOSE => 'Mouse' };
+
 test_target 'test_moose' => (
     env => { ANY_MOOSE => 'Moose' },
 );
