@@ -15,13 +15,12 @@ foreach my $type(qw(ArrayRef HashRef CodeRef Str Num Bool Counter)){
     require_ok $trait->method_provider_class;
 }
 
+ok( Mouse::Meta::Attribute::Native->VERSION );
 
 diag "Testing MouseX::NativeTraits/$MouseX::NativeTraits::VERSION";
 diag "Dependencies:";
 
 require Mouse;
 diag "    Mouse/$Mouse::VERSION";
-
-ok( Mouse::Meta::Attribute::Native->VERSION );
 
 done_testing;

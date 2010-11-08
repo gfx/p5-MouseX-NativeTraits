@@ -3,11 +3,10 @@
 use strict;
 use warnings;
 
-use Any::Moose ();
-use Any::Moose '::Util::TypeConstraints';
-#use NoInlineAttribute;
 use Test::More;
 use Test::Fatal;
+use Any::Moose ();
+use Any::Moose '::Util::TypeConstraints';
 BEGIN {
     eval 'use Test::' . any_moose();
 }

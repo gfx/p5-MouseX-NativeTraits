@@ -1,7 +1,7 @@
 package Mouse::Meta::Attribute::Native;
 use strict;
 
-our $VERSION = '1.03';
+our $VERSION = '1.04';
 
 1;
 __END__
