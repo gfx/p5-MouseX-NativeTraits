@@ -1,5 +1,6 @@
 MouseX-NativeTraits-*
 .*
+*~
 !.gitignore
 !.shipit
 *.o
