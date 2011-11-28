@@ -1,5 +1,8 @@
 Revision history for Perl extension MouseX::NativeTraits
 
+1.05 2011-11-28 13:09:51
+    - Resolve RT #72549 - Counter is slower than doing it by hand
+
 1.04 2010-11-08 14:06:41
     - Workaround test problms, again
 
