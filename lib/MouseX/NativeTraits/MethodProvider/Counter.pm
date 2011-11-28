@@ -57,11 +57,19 @@ sub generate_inc {
     my $reader     = $self->reader;
     my $writer     = $self->writer;
     my $constraint = $self->attr->type_constraint;
+    my $name       = $self->attr->name;
 
+    my $optimized_inc = ( $constraint->name eq 'Int'
+                            && !$self->attr->trigger );
     return sub {
         my($instance, $value) = @_;
         if(@_ == 1){
-            $value = 1;
+            if($optimized_inc) {
+                return ++$instance->{$name};
+            }
+            else {
+                $value = 1;
+            }
         }
         elsif(@_ == 2){
             $constraint->assert_valid($value);
@@ -69,7 +77,7 @@ sub generate_inc {
         else {
             $self->argument_error('inc', 1, 2, scalar @_);
         }
-        $writer->($instance, $reader->($instance) + $value);
+        $instance->$writer($instance->$reader() + $value);
     };
 }
 
