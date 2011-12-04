@@ -12,6 +12,7 @@ test_requires 'Test::More'  => 0.88; # done_testing()
 test_requires 'Test::Fatal' => 0.003;
 
 tests_recursive 't';
+author_tests 'xt';
 
 auto_set_repository() if -d '.git';
 

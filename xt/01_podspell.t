@@ -2,11 +2,7 @@
 
 use strict;
 use Test::More;
-
-eval q{ use Test::Spelling };
-
-plan skip_all => q{Test::Spelling is not installed.}
-	if $@;
+use Test::Spelling;
 
 add_stopwords(map { split /[\s\:\-]/ } <DATA>);
 $ENV{LANG} = 'C';
@@ -17,10 +13,11 @@ Goro Fuji (gfx)
 gfuji(at)cpan.org
 MouseX::NativeTraits
 
+incrementing
+decrementing
 Stevan
 clearers
 cpan
-extention
 gfx
 Num
 Str
