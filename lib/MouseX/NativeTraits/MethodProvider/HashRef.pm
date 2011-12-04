@@ -154,13 +154,17 @@ sub generate_store {
     my $reader     = $self->reader;
     my $writer     = $self->writer;
 
+    my $constraint = $self->attr->type_constraint;
+    my $trigger    = $self->attr->trigger;
+
     return sub {
         my ( $instance, @kv ) = @_;
         if(@_ < 2) {
             $self->argument_error('set', 2, undef, scalar @_);
         }
 
-        my %new_value = %{ $reader->($instance) }; # copy
+        my $hash_ref   = $reader->($instance);
+        my %new_value = %{ $hash_ref }; # make a working copy
         my @ret_value;
         while (my ($key, $value) = splice @kv, 0, 2 ) {
             defined($key)
@@ -169,7 +173,11 @@ sub generate_store {
             push @ret_value, $new_value{$key} = $value; # change
         }
 
-        $writer->( $instance, \%new_value ); # commit
+        $constraint->assert_valid(\%new_value) if defined $constraint;
+
+        %{ $hash_ref } = %new_value; # commit
+        $trigger->($instance) if defined $trigger;
+
         return wantarray ? @ret_value : $ret_value[-1];
     };
 }
@@ -179,6 +187,9 @@ sub generate_accessor {
 
     my $reader     = $self->reader;
     my $writer     = $self->writer;
+
+    my $constraint = $self->attr->type_constraint;
+    my $trigger    = $self->attr->trigger;
 
     return sub {
         my($instance, $key, $value) = @_;;
@@ -190,12 +201,15 @@ sub generate_accessor {
             return $reader->($instance)->{ $key };
         }
         elsif ( @_ == 3 ) {    # writer
-            defined($key)
-                or $self->meta->throw_error(
+            defined($key) or $self->meta->throw_error(
                     "Hash keys passed to accessor must be defined" );
-            my %new_value = %{ $reader->($instance) };
+
+            my $hash_ref  = $reader->($instance);
+            my %new_value = %{ $hash_ref };
             $new_value{$key} = $value;
-            $writer->($instance, \%new_value); # commit
+            $constraint->assert_valid(\%new_value) if defined $constraint;
+            %{ $hash_ref } = %new_value;
+            $trigger->($instance) if defined $trigger;
         }
         else {
             $self->argument_error('accessor', 2, 3, scalar @_);
@@ -229,7 +243,7 @@ sub generate_delete {
         my $instance = shift;
 
         my @r = delete @{ $reader->($instance) }{@_};
-        defined($trigger) and $trigger->($instance);
+        $trigger->($instance) if defined $trigger;
         return wantarray ? @r : $r[-1];
     };
 }
