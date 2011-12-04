@@ -1,5 +1,8 @@
 Revision history for Perl extension MouseX::NativeTraits
 
+1.06 2011-12-04 15:23:07
+    - Apply a patch in RT #72900 - Spelling gritch (gregor herrmann)
+
 1.05 2011-11-28 13:09:51
     - Resolve RT #72549 - Counter is slower than doing it by hand
 
