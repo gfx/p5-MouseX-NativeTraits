@@ -115,7 +115,7 @@ As seen in the L</SYNOPSIS>, you specify the data structure via the
 C<traits> parameter. These traits will be loaded automatically, so
 you need not load MouseX::NativeTraits explicitly.
 
-This extention is compatible with Moose native traits, although it
+This extension is compatible with Moose native traits, although it
 is not a part of Mouse core.
 
 =head1 PARAMETERS
