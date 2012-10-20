@@ -1,5 +1,8 @@
 Revision history for Perl extension MouseX::NativeTraits
 
+1.08 2012-10-20 20:51:22
+    - No feature changes. Just upgraded Module::Install.
+
 1.07 2011-12-04 16:11:32
     - Resolve RT #69039 - Hash trait: Tied hashes become "untied"
       when using setter
