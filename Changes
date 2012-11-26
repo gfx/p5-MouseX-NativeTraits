@@ -1,5 +1,8 @@
 Revision history for Perl extension MouseX::NativeTraits
 
+1.09 2012-11-26 17:56:42
+    - Remove "set" handler from pod
+
 1.08 2012-10-20 20:51:22
     - No feature changes. Just upgraded Module::Install.
 

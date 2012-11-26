@@ -59,10 +59,6 @@ package.
 
 =over 4
 
-=item B<set($value)>
-
-Alternate way to set the value.
-
 =item B<add($value)>
 
 Adds the current value of the attribute to C<$value>.
